@@ -8,6 +8,8 @@ import { dirname } from "path";
 
 import userRoute from "./routes/userRoute.js";
 import tripRoute from './routes/tripRoute.js';
+import locationRoute from './routes/locationRoute.js';
+import notificationRoute from './routes/notificationRoute.js';
 
 import { connectDB } from "./config/db.js";
 
@@ -31,6 +33,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/users", userRoute);
 app.use('/api/trips', tripRoute);
+app.use('/api/location', locationRoute);
+app.use('/api/notifications', notificationRoute);
 
 
 // catch 404 and forward to error handler
