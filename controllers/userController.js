@@ -6,9 +6,6 @@ import User from "../models/User.js";
 
 dotenv.config({ path: "../config/config.env" });
 
-// @route    GET api/user/find/:id
-// @desc     Get registered user by ID
-// @access   Private (Admin)
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -25,9 +22,6 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// @route    POST api/user
-// @desc     Register user
-// @access   Public
 export const registerUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

@@ -10,6 +10,9 @@ import userRoute from "./routes/userRoute.js";
 import tripRoute from './routes/tripRoute.js';
 import locationRoute from './routes/locationRoute.js';
 import notificationRoute from './routes/notificationRoute.js';
+import authRoute from './routes/authRoute.js';
+import syncRoute from './routes/syncRoutes.js';
+import ratingRoutes from "./routes/ratingRoutes.js";
 
 import { connectDB } from "./config/db.js";
 
@@ -32,9 +35,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/users", userRoute);
+app.use("/api/auth", authRoute);
 app.use('/api/trips', tripRoute);
 app.use('/api/location', locationRoute);
 app.use('/api/notifications', notificationRoute);
+app.use('/api/sync', syncRoute);
+app.use("/api/ratings", ratingRoutes);
 
 
 // catch 404 and forward to error handler

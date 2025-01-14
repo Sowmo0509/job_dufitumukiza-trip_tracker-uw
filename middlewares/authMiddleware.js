@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import TokenBlacklist from "../models/TokenBlacklist.js";
 dotenv.config({ path: "../config/config.env" });
 
-export const verifyToken = (
+export const verifyToken = async (
   req,
   res,
   next
@@ -14,6 +15,11 @@ export const verifyToken = (
   }
 
   try {
+    const blacklistedToken = await TokenBlacklist.findOne({ token });
+    if (blacklistedToken) {
+      return res.status(403).json({ message: "Token is invalid or expired" });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (typeof decoded == "string") {
       throw new Error("Invalid token");

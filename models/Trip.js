@@ -23,6 +23,8 @@ const tripSchema = new mongoose.Schema({
     endedAt: { type: Date },
   },
   status: { type: String, enum: ['ongoing', 'completed'], default: 'ongoing' },
+  rating: { type: Number, min: 1, max: 5 },
+  feedback: { type: String },
 });
 
 const Trip = mongoose.model('Trip', tripSchema);

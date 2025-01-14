@@ -1,30 +1,9 @@
 import express from "express";
-import { body } from "express-validator";
-import {
-  authenticateUser,
-  deleteUser,
-  getLoggedInUser,
-  updateUser,
-} from "../controllers/authController.js";
-import { verifyToken, verifyTokenAndUser } from "../middlewares/authMiddleware.js";
+import { logout, refreshToken } from "../controllers/authController.js";
 
 const router = express.Router();
 
-// GET LOGGED IN USER
-router.get("/", verifyToken, getLoggedInUser);
-
-// AUTHENTICATE USER AND GET TOKEN
-router.post(
-  "/",
-  body("email", "Please include a valid email").isEmail(),
-  body("password", "Password is required").exists(),
-  authenticateUser
-);
-
-// UPDATE USER
-router.put("/:id", verifyTokenAndUser, updateUser);
-
-// DELETE USER
-router.delete("/:id", verifyTokenAndUser, deleteUser);
+router.post("/refresh-token", refreshToken);
+router.post("/logout", logout);
 
 export default router;
