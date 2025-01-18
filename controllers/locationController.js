@@ -60,12 +60,10 @@ export const getAddressByCoordinates = async (req, res) => {
 };
 
 export const getTrafficData = async (req, res) => {
-  const { origin, destination } = req.query;
+  const { origin, destination, traffic_model = "best_guess" } = req.query;
 
   if (!origin || !destination) {
-    return res
-      .status(400)
-      .json({ message: "Origin and destination are required." });
+    return res.status(400).json({ message: "Origin and destination are required." });
   }
 
   try {
@@ -74,24 +72,31 @@ export const getTrafficData = async (req, res) => {
         origin,
         destination,
         departure_time: "now",
+        traffic_model,
         key: process.env.GOOGLE_MAPS_API_KEY,
       },
     });
+
+    if (!response.data.routes.length) {
+      return res.status(404).json({ message: "No route found." });
+    }
 
     const route = response.data.routes[0];
     const legs = route.legs[0];
 
     res.json({
-      trafficStatus: legs.traffic_speed_entry ? "Moderate" : "Unknown",
-      estimatedDuration: legs.duration_in_traffic?.value || legs.duration.value,
+      trafficModel: traffic_model,
+      estimatedDuration: legs.duration_in_traffic?.text || legs.duration.text,
       distance: legs.distance.text,
       steps: legs.steps.map((step) => step.html_instructions.replace(/<[^>]+>/g, "")),
     });
   } catch (error) {
-    console.error("Error fetching traffic data:", error);
-    res.status(500).json({ message: "Failed to fetch traffic data." });
+    console.error("Error fetching traffic data:", error.response?.data || error.message);
+    res.status(500).json({ message: "Failed to fetch traffic data.", error: error.message });
   }
 };
+
+
 
 export const getRoutePlanning = async (req, res) => {
   const { origin, destination } = req.query;
