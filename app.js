@@ -5,7 +5,11 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { specs, swaggerUi } from "./swagger.js";
+import { specs, swaggerUi } from "./_swagger.js";
+import { readFile } from "fs/promises";
+
+// Add this before your app initialization
+const swaggerDocument = JSON.parse(await readFile(new URL("./swagger-output.json", import.meta.url)));
 
 import userRoute from "./routes/userRoute.js";
 import tripRoute from "./routes/tripRoute.js";
@@ -28,7 +32,8 @@ connectDB();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(logger("dev"));
 app.use(express.json());

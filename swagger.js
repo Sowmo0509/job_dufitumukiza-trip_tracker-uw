@@ -1,17 +1,17 @@
-import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
+import swaggerAutogen from "swagger-autogen";
 
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Swagger Express API",
-      version: "1.0.0",
-      description: "A simple Express API with Swagger documentation",
-    },
+const doc = {
+  info: {
+    title: "User API",
+    description: "API for user management",
   },
-  apis: ["./routes/*.js"], // Path to your API routes
+  host: "localhost:3000",
+  schemes: ["http"],
 };
-const specs = swaggerJsdoc(options);
 
-export { specs, swaggerUi };
+const outputFile = "./swagger-output.json";
+const endpointsFiles = ["./routes/authRoute.js", "./routes/locationRoute.js", "./routes/notificationRoute.js", "./routes/ratingRoute.js", "./routes/syncRoutes.js", "./routes/tripRoute.js", "./routes/userRoute.js"];
+
+swaggerAutogen()(outputFile, endpointsFiles).then(() => {
+  console.log("Swagger documentation generated");
+});
