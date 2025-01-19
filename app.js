@@ -12,9 +12,12 @@ import locationRoute from './routes/locationRoute.js';
 import notificationRoute from './routes/notificationRoute.js';
 import authRoute from './routes/authRoute.js';
 import syncRoute from './routes/syncRoutes.js';
-import ratingRoutes from "./routes/ratingRoutes.js";
+import ratingRoute from './routes/ratingRoute.js';
 
 import { connectDB } from "./config/db.js";
+import swaggerUi from 'swagger-ui-express';
+import { swaggerOptions } from './swaggerOptions.js';
+import swaggerJSDoc from "swagger-jsdoc";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,8 +26,6 @@ const app = express();
 
 connectDB();
 
-
-// view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
@@ -34,13 +35,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.use("/api/users", userRoute);
 app.use("/api/auth", authRoute);
 app.use('/api/trips', tripRoute);
 app.use('/api/location', locationRoute);
 app.use('/api/notifications', notificationRoute);
 app.use('/api/sync', syncRoute);
-app.use("/api/ratings", ratingRoutes);
+app.use("/api/ratings", ratingRoute);
 
 
 // catch 404 and forward to error handler
