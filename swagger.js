@@ -5,7 +5,7 @@ const doc = {
     title: "User API",
     description: "API for user management",
   },
-  host: "localhost:3000",
+  host: "13.246.7.13:3000",
   schemes: ["http"],
 };
 

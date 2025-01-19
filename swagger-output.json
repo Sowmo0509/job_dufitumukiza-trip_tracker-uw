@@ -5,11 +5,11 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "http://13.246.7.13:3000",
+  "host": "13.246.7.13:3000",
   "basePath": "/",
   "schemes": ["http"],
   "paths": {
-    "http://13.246.7.13:3000/api/auth/refresh-token": {
+    "/api/auth/refresh-token": {
       "post": {
         "description": "",
         "parameters": [
@@ -39,7 +39,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/auth/logout": {
+    "/api/auth/logout": {
       "post": {
         "description": "",
         "parameters": [
@@ -62,7 +62,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/location/geocode": {
+    "/api/location/geocode": {
       "get": {
         "description": "",
         "parameters": [
@@ -85,7 +85,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/location/reverse-geocode": {
+    "/api/location/reverse-geocode": {
       "get": {
         "description": "",
         "parameters": [
@@ -113,7 +113,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/location/traffic": {
+    "/api/location/traffic": {
       "get": {
         "description": "",
         "parameters": [
@@ -149,7 +149,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/location/route": {
+    "/api/location/route": {
       "get": {
         "description": "",
         "parameters": [
@@ -177,7 +177,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/notifications/": {
+    "/api/notifications/": {
       "post": {
         "description": "",
         "parameters": [
@@ -248,7 +248,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/notifications/{id}": {
+    "/api/notifications/{id}": {
       "patch": {
         "description": "",
         "parameters": [
@@ -297,7 +297,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/{tripId}": {
+    "/api/trips/{tripId}": {
       "get": {
         "description": "",
         "parameters": [
@@ -327,7 +327,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/user/{userId}": {
+    "/api/trips/user/{userId}": {
       "get": {
         "description": "",
         "parameters": [
@@ -362,7 +362,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/start": {
+    "/api/trips/start": {
       "post": {
         "description": "",
         "parameters": [
@@ -395,7 +395,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/{tripId}/update": {
+    "/api/trips/{tripId}/update": {
       "put": {
         "description": "",
         "parameters": [
@@ -437,7 +437,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/end": {
+    "/api/trips/end": {
       "post": {
         "description": "",
         "parameters": [
@@ -473,7 +473,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/{tripId}/notes": {
+    "/api/trips/{tripId}/notes": {
       "post": {
         "description": "",
         "parameters": [
@@ -509,7 +509,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/history/{userId}": {
+    "/api/trips/history/{userId}": {
       "get": {
         "description": "",
         "parameters": [
@@ -530,7 +530,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/trips/history/filter/{userId}": {
+    "/api/trips/history/filter/{userId}": {
       "get": {
         "description": "",
         "parameters": [
@@ -571,7 +571,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/users/find/{id}": {
+    "/api/users/find/{id}": {
       "get": {
         "description": "",
         "parameters": [
@@ -604,7 +604,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/users/register": {
+    "/api/users/register": {
       "post": {
         "description": "",
         "parameters": [
@@ -640,7 +640,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/users/profile": {
+    "/api/users/profile": {
       "get": {
         "description": "",
         "parameters": [
@@ -669,7 +669,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/users/login": {
+    "/api/users/login": {
       "post": {
         "description": "",
         "parameters": [
@@ -702,7 +702,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/users/profile/{id}": {
+    "/api/users/profile/{id}": {
       "put": {
         "description": "",
         "parameters": [
@@ -747,7 +747,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/users/reset-password/{id}": {
+    "/api/users/reset-password/{id}": {
       "delete": {
         "description": "",
         "parameters": [
@@ -774,7 +774,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/users/change-password/{id}": {
+    "/api/users/change-password/{id}": {
       "delete": {
         "description": "",
         "parameters": [
@@ -810,7 +810,7 @@
         }
       }
     },
-    "http://13.246.7.13:3000/api/rating": {
+    "/api/rating": {
       "get": {
         "description": "",
         "parameters": [
