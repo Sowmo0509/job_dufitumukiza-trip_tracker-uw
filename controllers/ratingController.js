@@ -1,21 +1,22 @@
 import Trip from "../models/Trip.js";
+import { createResponse } from "../utils/responseHandler.js";
 
 export const submitRating = async (req, res) => {
   const { tripId, rating, feedback } = req.body;
 
   if (!tripId || !rating) {
-    return res.status(400).json({ msg: "Trip ID and rating are required." });
+    return res.json(createResponse({status:400, message: "Trip ID and rating are required." }));
   }
 
   try {
     const trip = await Trip.findById(tripId);
 
     if (!trip) {
-      return res.status(404).json({ msg: "Trip not found." });
+      return res.json(createResponse({status:404, message: "Trip not found." }));
     }
 
     if (trip.status !== "completed") {
-      return res.status(400).json({ msg: "Cannot rate an incomplete trip." });
+      return res.json(createResponse({status:400, message: "Cannot rate an incomplete trip." }));
     }
 
     trip.rating = rating;
@@ -23,10 +24,10 @@ export const submitRating = async (req, res) => {
 
     await trip.save();
 
-    res.status(200).json({ success: true, msg: "Rating submitted successfully.", trip });
+    res.json(createResponse({message: "Rating submitted successfully.", result:{trip:trip} }));
   } catch (error) {
     console.error("Error submitting rating:", error);
-    res.status(500).json({ msg: "Failed to submit rating." });
+    res.json(createResponse({ status:500, message: "Failed to submit rating.", error:error?.message }));
   }
 };
 
@@ -37,13 +38,13 @@ export const getRatingsForTrip = async (req, res) => {
     const trip = await Trip.findById(tripId).select("rating feedback");
 
     if (!trip) {
-      return res.status(404).json({ msg: "Trip not found." });
+      return res.json(createResponse({status:404, message: "Trip not found." }));
     }
 
-    res.status(200).json({ success: true, rating: trip.rating, feedback: trip.feedback });
+    res.json(createResponse({status:200, result: {rating: trip.rating, feedback: trip.feedback} }));
   } catch (error) {
     console.error("Error fetching ratings:", error);
-    res.status(500).json({ msg: "Failed to fetch ratings." });
+    res.json(createResponse({ status:500, message: "Failed to fetch rating.", error:error?.message }));
   }
 };
 
@@ -54,15 +55,15 @@ export const getUserAverageRating = async (req, res) => {
     const trips = await Trip.find({ userId, rating: { $exists: true } }).select("rating");
 
     if (trips.length === 0) {
-      return res.status(404).json({ msg: "No ratings found for the user." });
+      return res.json(createResponse({status:404, message: "No ratings found for the user." }));
     }
 
     const totalRatings = trips.reduce((sum, trip) => sum + trip.rating, 0);
     const averageRating = (totalRatings / trips.length).toFixed(2);
 
-    res.status(200).json({ success: true, averageRating, totalRatings: trips.length });
+    res.json(createResponse({status:200, result:{ averageRating, totalRatings: trips.length}, message:"Failed to fetch ratings" }));
   } catch (error) {
     console.error("Error calculating average rating:", error);
-    res.status(500).json({ msg: "Failed to calculate average rating." });
+    res.json(createResponse({ status:500, message: "Failed to calculate rating.", error:error?.message }));
   }
 };

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import User from "../models/User.js";
+import { createResponse } from "../utils/responseHandler.js";
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -10,22 +11,34 @@ export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
     if (!user) {
-      return res.status(404).json({ msg: "User not found" });
+      return res.json(
+        createResponse({ status: 404, message: "User not found" })
+      );
     }
-    res.status(200).json(user);
+    res.json(
+      createResponse({ result: {user:user}, message: "User fetched successfully" })
+    );
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(400).json({ msg: "User doesn't exist" });
+      return res.json(
+        createResponse({ status: 400, message: "User doesn't exist" })
+      );
     }
     console.error(err.message);
-    res.status(500).send("Server Error");
+    res.json(
+      createResponse({
+        status: 500,
+        message: "Server error",
+        error: err?.message,
+      })
+    );
   }
 };
 
 export const registerUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.json(createResponse({message:"Validation error",status:400, errors: errors.array() }));
   }
 
   const { name, email, password } = req.body;
@@ -34,7 +47,7 @@ export const registerUser = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (user) {
-      return res.status(400).send("User already exists");
+      return res.send(createResponse({status:400,message:"User already exists"}));
     }
 
     // CREATE A NEW USER
@@ -64,10 +77,22 @@ export const registerUser = async (req, res) => {
       (error, token) => {
         if (error) throw error;
         res.json({ token });
+        res.json(
+          createResponse({
+            message: "User registered successfully",
+            result: {token: token},
+          })
+        );
       }
     );
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server Error");
+    res.json(
+      createResponse({
+        status: 500,
+        message: "Server error",
+        error: err?.message,
+      })
+    );
   }
 };

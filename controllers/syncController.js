@@ -1,4 +1,5 @@
 import Trip from "../models/Trip.js";
+import { createResponse } from "../utils/responseHandler.js";
 
 /**
  * Sync Offline Data
@@ -9,7 +10,12 @@ export const syncOfflineData = async (req, res) => {
   const { userId, offlineData } = req.body;
 
   if (!userId || !offlineData) {
-    return res.status(400).json({ success: false, msg: "User ID and offline data are required." });
+    return res.json(
+      createResponse({
+        status: "400",
+        message: "User ID and offline data are required.",
+      })
+    );
   }
 
   const results = [];
@@ -91,13 +97,16 @@ export const syncOfflineData = async (req, res) => {
       }
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Data synchronized successfully",
-      results,
-    });
+    res.json(
+      createResponse({
+        result: results,
+        message: "Data synchronized successfully.",
+      })
+    );
   } catch (error) {
-    console.error("Sync error:", error);
-    res.status(500).json({ success: false, msg: "Failed to synchronize data" });
+    console.error(createResponse({
+      status: "500",
+      error: "Failed to synchronize data.",
+    }));
   }
 };
