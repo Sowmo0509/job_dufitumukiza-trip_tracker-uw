@@ -1,8 +1,8 @@
-import express from 'express';
-import { check, body } from 'express-validator';
-import { verifyToken, verifyTokenAndAdmin, verifyTokenAndUser } from '../middlewares/authMiddleware.js';
-import { getUserById, registerUser } from './../controllers/userController.js'
-import { authenticateUser, changePassword, getLoggedInUser, resetPassword, updateUser } from '../controllers/authController.js';
+import express from "express";
+import { check, body } from "express-validator";
+import { verifyToken, verifyTokenAndAdmin, verifyTokenAndUser } from "../middlewares/authMiddleware.js";
+import { getUserById, registerUser } from "./../controllers/userController.js";
+import { authenticateUser, changePassword, getLoggedInUser, resetPassword, updateUser } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -75,11 +75,7 @@ router.get("/find/:id", verifyTokenAndAdmin, getUserById);
  *       400:
  *         description: Invalid input
  */
-router.post('/register', [
-  check('name', 'Name is required').not().isEmpty(),
-  check('email', 'Please include a valid email').isEmail(),
-  check('password', 'Password must be at least 6 characters').isLength({ min: 6 }),
-], registerUser);
+router.post("/register", [check("name", "Name is required").not().isEmpty(), check("email", "Please include a valid email").isEmail(), check("password", "Password must be at least 6 characters").isLength({ min: 6 })], registerUser);
 
 /**
  * @swagger
@@ -87,6 +83,8 @@ router.post('/register', [
  *   get:
  *     summary: Get logged-in user profile
  *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: User profile fetched successfully
@@ -95,10 +93,45 @@ router.post('/register', [
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       401:
- *         description: Unauthorized
+ *         description: No token, authorization denied
+ *       403:
+ *         description: Token is invalid or expired
+ *       500:
+ *         description: Server error
+ *     description: |
+ *       This endpoint allows you to fetch the profile of the logged-in user.
+ *       The user must provide a valid token in the `x-auth-token` header. If the token is blacklisted or expired,
+ *       a `403` error will be returned.
+ *
+ * components:
+ *   securitySchemes:
+ *     BearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: User's unique identifier
+ *         name:
+ *           type: string
+ *           description: User's name
+ *         email:
+ *           type: string
+ *           description: User's email address
+ *         role:
+ *           type: string
+ *           description: User's role in the system (e.g., admin, user)
+ *       required:
+ *         - id
+ *         - name
+ *         - email
+ *         - role
  */
 router.get("/profile", verifyToken, getLoggedInUser);
-
 
 /**
  * @swagger
@@ -126,12 +159,7 @@ router.get("/profile", verifyToken, getLoggedInUser);
  *       400:
  *         description: Invalid input
  */
-router.post(
-  "/login",
-  body("email", "Please include a valid email").isEmail(),
-  body("password", "Password is required").exists(),
-  authenticateUser
-);
+router.post("/login", body("email", "Please include a valid email").isEmail(), body("password", "Password is required").exists(), authenticateUser);
 
 /**
  * @swagger
