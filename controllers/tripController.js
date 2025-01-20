@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Trip from "../models/Trip.js";
+import { createResponse } from "../utils/responseHandler.js";
 
 export const startTrip = async (req, res) => {
   const { userId, startLocation, travelMode } = req.body;
@@ -14,31 +15,32 @@ export const startTrip = async (req, res) => {
 
     console.log(trip,"---")
     const savedTrip = await trip.save();
-    res.status(201).json(savedTrip);
+    res.json(createResponse({
+      result: savedTrip,
+    }));
   } catch (error) {
-    res.status(500).json({ message: "Failed to start trip", error });
+    res.json(createResponse({status:500, message: "Failed to start trip", error:error?.message }));
   }
 };
 
 export const updateTrip = async (req, res) => {
   const { tripId } = req.params;
-  const { currentLocation, trafficCondition, weatherCondition } = req.body;
+  const { trafficCondition, weatherCondition } = req.body;
 
   try {
     const trip = await Trip.findById(tripId);
     if (!trip || trip.status !== "ongoing") {
       return res
-        .status(404)
-        .json({ message: "Trip not found or already completed" });
+        .json(createResponse({status:404, message: "Trip not found or already completed" }));
     }
 
     trip.trafficConditions.push(trafficCondition);
     trip.weatherConditions.push(weatherCondition);
 
     await trip.save();
-    res.status(200).json(trip);
+    res.json(createResponse({result:trip, message:"Trip updated successfully"}));
   } catch (error) {
-    res.status(500).json({ message: "Failed to update trip", error });
+    res.json(createResponse({status:500, message: "Failed to update trip", error:error?.message }));
   }
 };
 
@@ -49,8 +51,7 @@ export const endTrip = async (req, res) => {
     const trip = await Trip.findById(tripId);
     if (!trip || trip.status !== "ongoing") {
       return res
-        .status(404)
-        .json({ message: "Trip not found or already completed" });
+        .json(createResponse({status:404, message: "Trip not found or already completed" }));
     }
 
     trip.endLocation = endLocation;
@@ -59,9 +60,9 @@ export const endTrip = async (req, res) => {
     trip.timestamps.endedAt = new Date();
 
     const savedTrip = await trip.save();
-    res.status(200).json(savedTrip);
+    res.json(createResponse({result:savedTrip, message:"Trip ended successfully"}));
   } catch (error) {
-    res.status(500).json({ message: "Failed to end trip", error });
+    res.json(createResponse({status:500, message: "Failed to end trip", error: error?.message }));
   }
 };
 
@@ -72,7 +73,7 @@ export const addTripNotes = async (req, res) => {
   try {
     const trip = await Trip.findById(tripId);
     if (!trip) {
-      return res.status(404).json({ message: "Trip not found" });
+      return res.json(createResponse({status:404, message: "Trip not found" }));
     }
 
     if (notes) {
@@ -80,9 +81,12 @@ export const addTripNotes = async (req, res) => {
     }
 
     const updatedTrip = await trip.save();
-    res.status(200).json(updatedTrip);
+    res.json(createResponse({
+      result:updatedTrip,
+      message:"Add notes successfully"
+    }));
   } catch (error) {
-    res.status(500).json({ message: "Failed to add notes", error });
+    res.json(createResponse({status:500, message: "Failed to add notes", error:error?.message }));
   }
 };
 
@@ -93,9 +97,9 @@ export const getTripHistory = async (req, res) => {
     const trips = await Trip.find({ userId, status: "completed" }).sort({
       "timestamps.endedAt": -1,
     });
-    res.status(200).json(trips);
+    res.json(createResponse({result:trips, message:"Trip history retrieved successfully"}));
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve trip history", error });
+    res.json(createResponse({status:500, message: "Failed to retrieve trip history", error: error?.message }));
   }
 };
 
@@ -124,13 +128,11 @@ export const filterTripHistory = async (req, res) => {
       query.trafficConditions = trafficCondition;
     }
 
-    console.log(query, "======")
-
     const trips = await Trip.find(query).sort({ "timestamps.endedAt": -1 });
 
-    res.status(200).json(trips);
+    res.json(createResponse({result:trips, message:"Filtered trip"}));
   } catch (error) {
-    res.status(500).json({ message: "Failed to filter trip history", error });
+    res.json(createResponse({status:500, message: "Failed to filter trip history", error: error?.message }));
   }
 };
 
@@ -140,10 +142,13 @@ export const getTripDetails = async (req, res) => {
   try {
     const trip = await Trip.findById(tripId);
     if (!trip) {
-      return res.status(404).json({ message: "Trip not found" });
+      return res.json(createResponse({status:404, message: "Trip not found" }));
     }
-    res.status(200).json(trip);
+    res.json(createResponse({
+      result: trip,
+      message:"Trip fetched successfully"
+    }));
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve trip details", error });
+    res.json(createResponse({status:500, message: "Failed to retrieve trip details", error }));
   }
 };
