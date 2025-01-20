@@ -4,7 +4,6 @@ import { verifyToken, verifyTokenAndAdmin, verifyTokenAndUser } from '../middlew
 import { getUserById, registerUser } from './../controllers/userController.js'
 import { authenticateUser, changePassword, getLoggedInUser, resetPassword, updateUser } from '../controllers/authController.js';
 
-
 const router = express.Router();
 
 /**
@@ -99,6 +98,7 @@ router.post('/register', [
  *         description: Unauthorized
  */
 router.get("/profile", verifyToken, getLoggedInUser);
+
 
 /**
  * @swagger
