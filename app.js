@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { readFile } from "fs/promises";
+import cors from "cors";
 
 // Add this before your app initialization
 // const swaggerDocument = JSON.parse(await readFile(new URL("./swagger-output.json", import.meta.url)));
@@ -28,9 +28,8 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
+app.use(cors());
 connectDB();
-
-// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(logger("dev"));
 app.use(express.json());
