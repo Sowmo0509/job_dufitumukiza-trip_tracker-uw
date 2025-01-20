@@ -12,9 +12,11 @@ export const swaggerOptions = {
       version: "1.0.0",
       description: "API for managing users",
     },
+    // host: "13.246.7.13:3000",
     servers: [
       {
-        url: "http://localhost:3000/api",
+        // url: "http://localhost:3000/api",
+        url: "http://13.246.7.13:3000/api",
       },
     ],
   },
