@@ -8,7 +8,7 @@ import { dirname } from "path";
 import { readFile } from "fs/promises";
 
 // Add this before your app initialization
-const swaggerDocument = JSON.parse(await readFile(new URL("./swagger-output.json", import.meta.url)));
+// const swaggerDocument = JSON.parse(await readFile(new URL("./swagger-output.json", import.meta.url)));
 
 import userRoute from "./routes/userRoute.js";
 import tripRoute from "./routes/tripRoute.js";
@@ -30,8 +30,7 @@ const app = express();
 
 connectDB();
 
-// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(logger("dev"));
 app.use(express.json());
