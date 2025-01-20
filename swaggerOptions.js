@@ -12,23 +12,26 @@ export const swaggerOptions = {
       version: "1.0.0",
       description: "API for managing users",
     },
-    // host: "13.246.7.13:3000",
     servers: [
       {
-        // url: "http://localhost:3000/api",
         url: "http://13.246.7.13:3000/api",
       },
     ],
-    securityDefinitions: {
-      Bearer: {
-        type: "apiKey",
-        name: "Authorization",
-        in: "header",
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: "http", // Use 'http' type for Bearer token
+          scheme: "bearer", // Specify 'bearer' scheme
+          bearerFormat: "JWT", // Optionally specify the format (JWT)
+          type: "bearer",
+          name: "bearer",
+          in: "header",
+        },
       },
     },
     security: [
       {
-        Bearer: [],
+        BearerAuth: [], // Use BearerAuth here
       },
     ],
   },
