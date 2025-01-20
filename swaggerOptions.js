@@ -19,6 +19,18 @@ export const swaggerOptions = {
         url: "http://13.246.7.13:3000/api",
       },
     ],
+    securityDefinitions: {
+      Bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
+    },
+    security: [
+      {
+        Bearer: [],
+      },
+    ],
   },
   apis: [path.join(__dirname, "./routes/*.js")],
 };
