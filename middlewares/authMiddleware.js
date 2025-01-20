@@ -5,7 +5,10 @@ import { createResponse } from "../utils/responseHandler.js";
 dotenv.config({ path: "../config/config.env" });
 
 export const verifyToken = async (req, res, next) => {
-  const token = req.header("x-auth-token") || req.header("Authorization");
+  // const tokenFromReq = req.header("x-auth-token") || req.header("Authorization");
+  const tokenFromReq = req.header("Authorization");
+  const token = tokenFromReq.split(" ")[1];
+  console.log(token);
 
   if (!token) {
     return res.json(createResponse({ status: 401, message: "No token, authorization denied" }));

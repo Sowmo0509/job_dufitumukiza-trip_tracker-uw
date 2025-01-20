@@ -14,7 +14,8 @@ export const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://13.246.7.13:3000/api",
+        // url: "http://13.246.7.13:3000/api",
+        url: "http://localhost:3000/api",
       },
     ],
     components: {

@@ -13,9 +13,7 @@ export const getLoggedInUser = async (req, res) => {
   try {
     const user = await User.findById(req.user?.id).select("-password");
     if (!user) {
-      return res.json(
-        createResponse({ message: "User doesn't exist", status: 400 })
-      );
+      return res.json(createResponse({ message: "User doesn't exist", status: 400 }));
     }
     res.json(
       createResponse({
@@ -51,17 +49,13 @@ export const authenticateUser = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.json(
-        createResponse({ message: "User not found", status: 400 })
-      );
+      return res.json(createResponse({ message: "User not found", status: 400 }));
     }
 
     // Validate password
     const isMatch = bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.json(
-        createResponse({ message: "Invalid email or password", status: 400 })
-      );
+      return res.json(createResponse({ message: "Invalid email or password", status: 400 }));
     }
 
     const blacklistedToken = await TokenBlacklist.findOne({ userId: user.id });
@@ -84,7 +78,7 @@ export const authenticateUser = async (req, res) => {
     res.json(
       createResponse({
         result: { token: token, user: userDetails },
-        message:"User authenticated successfully"
+        message: "User authenticated successfully",
       })
     );
   } catch (err) {
@@ -118,8 +112,7 @@ export const updateUser = async (req, res) => {
       if (!req.body.currentPassword) {
         return res.json(
           createResponse({
-            message:
-              "Provide your current password before you can update your password",
+            message: "Provide your current password before you can update your password",
             status: 400,
           })
         );
@@ -128,9 +121,7 @@ export const updateUser = async (req, res) => {
       newPassword = await bcrypt.hash(req.body.password, salt);
       const isMatch = bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
-        return res.json(
-          createResponse({ message: "Old password isn't correct", status: 400 })
-        );
+        return res.json(createResponse({ message: "Old password isn't correct", status: 400 }));
       }
     }
 
@@ -147,7 +138,7 @@ export const updateUser = async (req, res) => {
 
     res.json(
       createResponse({
-        result: {user: updatedUser},
+        result: { user: updatedUser },
         message: "User updated successfully!!",
       })
     );
@@ -231,7 +222,7 @@ export const changePassword = async (req, res) => {
       res.json(
         createResponse({
           message: "Password updated successfully",
-          result:{user: updatedRecord}
+          result: { user: updatedRecord },
         })
       );
     } else {
