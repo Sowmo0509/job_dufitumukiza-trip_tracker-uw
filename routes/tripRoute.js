@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
   startTrip,
   updateTrip,
@@ -7,7 +7,7 @@ import {
   getTripDetails,
   addTripNotes,
   filterTripHistory,
-} from '../controllers/tripController.js';
+} from "../controllers/tripController.js";
 
 const router = express.Router();
 
@@ -19,23 +19,22 @@ const router = express.Router();
  *       type: object
  *       required:
  *         - userId
- *         - destination
- *         - startTime
+ *         - startLocation
+ *         - travelMode
  *       properties:
  *         userId:
  *           type: string
  *           description: The ID of the user starting the trip
- *         destination:
+ *         startLocation:
  *           type: string
- *           description: The destination of the trip
- *         startTime:
+ *           description: The starting location of the trip
+ *         travelMode:
  *           type: string
- *           format: date-time
- *           description: The start time of the trip
+ *           description: The mode of travel (e.g., car, bike, walk)
  *       example:
  *         userId: "12345"
- *         destination: "New York City"
- *         startTime: "2023-12-01T10:00:00Z"
+ *         startLocation: "New York City"
+ *         travelMode: "car"
  */
 
 /**
@@ -51,12 +50,12 @@ const router = express.Router();
  *           schema:
  *             $ref: '#/components/schemas/Trip'
  *     responses:
- *       201:
+ *       200:
  *         description: Trip started successfully
- *       400:
- *         description: Invalid input
+ *       500:
+ *         description: Failed to start trip
  */
-router.post('/start', startTrip);
+router.post("/start", startTrip);
 
 /**
  * @swagger
@@ -71,13 +70,31 @@ router.post('/start', startTrip);
  *           type: string
  *         required: true
  *         description: The ID of the trip to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               trafficCondition:
+ *                 type: string
+ *                 description: Traffic condition during the trip
+ *               weatherCondition:
+ *                 type: string
+ *                 description: Weather condition during the trip
+ *             example:
+ *               trafficCondition: "heavy"
+ *               weatherCondition: "rainy"
  *     responses:
  *       200:
  *         description: Trip updated successfully
  *       404:
- *         description: Trip not found
+ *         description: Trip not found or already completed
+ *       500:
+ *         description: Failed to update trip
  */
-router.put('/:tripId/update', updateTrip);
+router.put("/:tripId/update", updateTrip);
 
 /**
  * @swagger
@@ -85,13 +102,35 @@ router.put('/:tripId/update', updateTrip);
  *   post:
  *     summary: End an ongoing trip
  *     tags: [Trips]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               tripId:
+ *                 type: string
+ *                 description: The ID of the trip to end
+ *               endLocation:
+ *                 type: string
+ *                 description: The ending location of the trip
+ *               notes:
+ *                 type: string
+ *                 description: Additional notes about the trip
+ *             example:
+ *               tripId: "1234567890abcdef12345678"
+ *               endLocation: "Los Angeles"
+ *               notes: "Smooth trip with clear traffic."
  *     responses:
  *       200:
  *         description: Trip ended successfully
- *       400:
- *         description: Error ending the trip
+ *       404:
+ *         description: Trip not found or already completed
+ *       500:
+ *         description: Failed to end trip
  */
-router.post('/end', endTrip);
+router.post("/end", endTrip);
 
 /**
  * @swagger
@@ -117,14 +156,16 @@ router.post('/end', endTrip);
  *                 type: string
  *                 description: Notes to add to the trip
  *             example:
- *               notes: "This trip was smooth and on schedule."
+ *               notes: "This trip was smooth and enjoyable."
  *     responses:
- *       201:
+ *       200:
  *         description: Notes added successfully
  *       404:
  *         description: Trip not found
+ *       500:
+ *         description: Failed to add notes
  */
-router.post('/:tripId/notes', addTripNotes);
+router.post("/:tripId/notes", addTripNotes);
 
 /**
  * @swagger
@@ -142,10 +183,10 @@ router.post('/:tripId/notes', addTripNotes);
  *     responses:
  *       200:
  *         description: Trip history retrieved successfully
- *       404:
- *         description: No history found for the user
+ *       500:
+ *         description: Failed to retrieve trip history
  */
-router.get('/history/:userId', getTripHistory);
+router.get("/history/:userId", getTripHistory);
 
 /**
  * @swagger
@@ -160,13 +201,35 @@ router.get('/history/:userId', getTripHistory);
  *           type: string
  *         required: true
  *         description: The ID of the user
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering trip history
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering trip history
+ *       - in: query
+ *         name: travelMode
+ *         schema:
+ *           type: string
+ *         description: Travel mode (e.g., car, bike)
+ *       - in: query
+ *         name: trafficCondition
+ *         schema:
+ *           type: string
+ *         description: Traffic condition during the trips
  *     responses:
  *       200:
  *         description: Filtered trip history retrieved successfully
- *       404:
- *         description: No filtered history found for the user
+ *       500:
+ *         description: Failed to filter trip history
  */
-router.get('/history/filter/:userId', filterTripHistory);
+router.get("/history/filter/:userId", filterTripHistory);
 
 /**
  * @swagger
@@ -186,7 +249,9 @@ router.get('/history/filter/:userId', filterTripHistory);
  *         description: Trip details retrieved successfully
  *       404:
  *         description: Trip not found
+ *       500:
+ *         description: Failed to retrieve trip details
  */
-router.get('/:tripId', getTripDetails);
+router.get("/:tripId", getTripDetails);
 
 export default router;

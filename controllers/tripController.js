@@ -1,25 +1,58 @@
-import mongoose from "mongoose";
+import { Client } from "@googlemaps/google-maps-services-js";
 import Trip from "../models/Trip.js";
 import { createResponse } from "../utils/responseHandler.js";
 
+const client = new Client({});
+
 export const startTrip = async (req, res) => {
   const { userId, startLocation, travelMode } = req.body;
-  console.log(userId, startLocation, travelMode, "====")
 
   try {
+    if (!startLocation || !userId || !travelMode) {
+      return res.json(createResponse({
+        status: 400,
+        message: "User ID, start location, and travel mode are required.",
+      }));
+    }
+
+    const geocodeResponse = await client.geocode({
+      params: {
+        address: startLocation,
+        key: process.env.GOOGLE_MAPS_API_KEY,
+      },
+    });
+
+    if (!geocodeResponse.data.results.length) {
+      return res.json(createResponse({
+        status: 400,
+        message: "Invalid address. Unable to geocode.",
+      }));
+    }
+
+    const { lat, lng } = geocodeResponse.data.results[0].geometry.location;
+
     const trip = new Trip({
-      userId: userId,
-      startLocation,
+      userId,
+      startLocation: {
+        lat,
+        lng,
+        address: startLocation,
+      },
       travelMode,
     });
 
-    console.log(trip,"---")
     const savedTrip = await trip.save();
     res.json(createResponse({
       result: savedTrip,
+      message: "Trip started successfully.",
     }));
   } catch (error) {
-    res.json(createResponse({status:500, message: "Failed to start trip", error:error?.message }));
+    console.error("Error starting trip:", error);
+    res.json(createResponse({
+      status: 500,
+      message: "Failed to start trip.",
+      error: error?.message,
+    }));
   }
 };
 
@@ -48,21 +81,54 @@ export const endTrip = async (req, res) => {
   const { endLocation, notes, tripId } = req.body;
 
   try {
-    const trip = await Trip.findById(tripId);
-    if (!trip || trip.status !== "ongoing") {
-      return res
-        .json(createResponse({status:404, message: "Trip not found or already completed" }));
+    if (!endLocation || !tripId) {
+      return res.json(createResponse({
+        status: 400,
+        message: "End location and trip ID are required.",
+      }));
     }
 
-    trip.endLocation = endLocation;
+    const trip = await Trip.findById(tripId);
+    if (!trip || trip.status !== "ongoing") {
+      return res.json(createResponse({
+        status: 404,
+        message: "Trip not found or already completed.",
+      }));
+    }
+
+    const geocodeResponse = await client.geocode({
+      params: {
+        address: endLocation,
+        key: process.env.GOOGLE_MAPS_API_KEY,
+      },
+    });
+
+    if (!geocodeResponse.data.results.length) {
+      return res.json(createResponse({
+        status: 400,
+        message: "Invalid address. Unable to geocode.",
+      }));
+    }
+
+    const { lat, lng } = geocodeResponse.data.results[0].geometry.location;
+
+    trip.endLocation = { lat, lng, address: endLocation };
     trip.notes = notes;
     trip.status = "completed";
     trip.timestamps.endedAt = new Date();
 
     const savedTrip = await trip.save();
-    res.json(createResponse({result:savedTrip, message:"Trip ended successfully"}));
+    res.json(createResponse({
+      result: savedTrip,
+      message: "Trip ended successfully.",
+    }));
   } catch (error) {
-    res.json(createResponse({status:500, message: "Failed to end trip", error: error?.message }));
+    console.error("Error ending trip:", error);
+    res.json(createResponse({
+      status: 500,
+      message: "Failed to end trip.",
+      error: error?.message,
+    }));
   }
 };
 
