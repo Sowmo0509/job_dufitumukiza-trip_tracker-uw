@@ -49,7 +49,7 @@ export const verifyTokenAndAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
     try {
       if (req.user?.role != "admin") {
-        return res.json(createResponse({ status: 403, message: "Access denied" }));
+        return res.json(createResponse({ status: 403, message: "Access denied, You must be admin!!" }));
       }
       next();
     } catch (error) {

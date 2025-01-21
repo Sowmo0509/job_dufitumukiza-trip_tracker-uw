@@ -33,7 +33,7 @@ export const registerUserWithOTP = async (req, res) => {
       to: mobileNumber,
     });
 
-    res.json(createResponse({  message: "OTP sent successfully." }));
+    res.json(createResponse({ result:{otp: otp},  message: "OTP sent successfully." }));
   } catch (error) {
     console.error("Error sending OTP:", error);
     res.status(500).json(createResponse({ status:500, message: "Failed to send OTP.", error:error?.message }));
@@ -57,6 +57,14 @@ export const verifyOTPAndRegister = async (req, res) => {
   otpStore.delete(mobileNumber);
 
   try {
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      return res.json(createResponse({
+        status: 500,
+        message: "User already registered."
+      }));
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       name,
@@ -170,10 +178,12 @@ export const authenticateUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
+    console.log(req.body, "-----")
     const { password, currentPassword, ...others } = req.body;
-    const user = await User.findById(req.params.id);
+    const userId = req.params.id;
 
-    let newPassword;
+    // Find the user by ID
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.json(
@@ -183,8 +193,12 @@ export const updateUser = async (req, res) => {
         })
       );
     }
-    if (req.body.password && user != null) {
-      if (!req.body.currentPassword) {
+
+    let newPassword = null;
+
+    // Handle password update only if the user provides a new password
+    if (password) {
+      if (!currentPassword) {
         return res.json(
           createResponse({
             message:
@@ -193,52 +207,66 @@ export const updateUser = async (req, res) => {
           })
         );
       }
-      let salt = await bcrypt.genSalt(10);
-      newPassword = await bcrypt.hash(req.body.password, salt);
-      const isMatch = bcrypt.compare(currentPassword, user.password);
+
+      // Verify the current password
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
         return res.json(
-          createResponse({ message: "Old password isn't correct", status: 400 })
+          createResponse({
+            message: "Current password is incorrect",
+            status: 400,
+          })
         );
       }
+
+      // Hash the new password
+      const salt = await bcrypt.genSalt(10);
+      newPassword = await bcrypt.hash(password, salt);
     }
 
+    // Update user details (conditionally include the new password if provided)
     const updatedUser = await User.findByIdAndUpdate(
-      req.user?.id,
+      userId,
       {
         $set: {
-          ...others,
-          password: newPassword,
+          ...others, // Spread other fields to update
+          ...(newPassword && { password: newPassword }), // Only include password if it's updated
         },
       },
-      { new: true }
+      { new: true } // Return the updated user document
     );
 
     res.json(
       createResponse({
         result: { user: updatedUser },
-        message: "User updated successfully!!",
+        message: "User updated successfully!",
       })
     );
   } catch (err) {
-    if (err.name == "CastError") {
+    // Handle invalid user ID error
+    if (err.name === "CastError") {
       return res.json(
         createResponse({
-          message: "CastError",
+          message: "Invalid user ID",
           status: 400,
           error: err?.message,
         })
       );
     }
-    return res.json(
+
+    // Handle server errors
+    console.error("Error updating user:", err);
+    res.json(
       createResponse({
-        message: "ServerError",
-        status: 400,
+        message: "Server error",
+        status: 500,
         error: err?.message,
       })
     );
   }
 };
+
+
 
 export const resetPassword = async (req, res) => {
   try {

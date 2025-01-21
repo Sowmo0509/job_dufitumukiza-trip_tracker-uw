@@ -1,8 +1,18 @@
 import express from "express";
 import { check, body } from "express-validator";
-import { verifyToken, verifyTokenAndAdmin, verifyTokenAndUser } from "../middlewares/authMiddleware.js";
+import {
+  verifyToken,
+  verifyTokenAndAdmin,
+  verifyTokenAndUser,
+} from "../middlewares/authMiddleware.js";
 import { getUserById, registerUser } from "./../controllers/userController.js";
-import { authenticateUser, changePassword, getLoggedInUser, resetPassword, updateUser } from "../controllers/authController.js";
+import {
+  authenticateUser,
+  changePassword,
+  getLoggedInUser,
+  resetPassword,
+  updateUser,
+} from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -75,7 +85,17 @@ router.get("/find/:id", verifyTokenAndAdmin, getUserById);
  *       400:
  *         description: Invalid input
  */
-router.post("/register", [check("name", "Name is required").not().isEmpty(), check("email", "Please include a valid email").isEmail(), check("password", "Password must be at least 6 characters").isLength({ min: 6 })], registerUser);
+router.post(
+  "/register",
+  [
+    check("name", "Name is required").not().isEmpty(),
+    check("email", "Please include a valid email").isEmail(),
+    check("password", "Password must be at least 6 characters").isLength({
+      min: 6,
+    }),
+  ],
+  registerUser
+);
 
 /**
  * @swagger
@@ -159,7 +179,12 @@ router.get("/profile", verifyToken, getLoggedInUser);
  *       400:
  *         description: Invalid input
  */
-router.post("/login", body("email", "Please include a valid email").isEmail(), body("password", "Password is required").exists(), authenticateUser);
+router.post(
+  "/login",
+  body("email", "Please include a valid email").isEmail(),
+  body("password", "Password is required").exists(),
+  authenticateUser
+);
 
 /**
  * @swagger
@@ -173,20 +198,68 @@ router.post("/login", body("email", "Please include a valid email").isEmail(), b
  *         schema:
  *           type: string
  *         required: true
- *         description: User ID
+ *         description: The ID of the user to update
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The updated name of the user
+ *               email:
+ *                 type: string
+ *                 description: The updated email of the user
+ *               password:
+ *                 type: string
+ *                 description: The new password to set for the user
+ *               currentPassword:
+ *                 type: string
+ *                 description: The current password of the user (required if updating the password)
+ *           example:
+ *             name: "John Doe Updated"
+ *             email: "john.doe@example.com"
+ *             currentPassword: "oldpassword123"
+ *             password: "newpassword123"
+ *       description: Leave password and current password field blank if you don't want to change it
  *     responses:
  *       200:
  *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: number
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "User updated successfully!"
+ *                 result:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: "1234567890abcdef12345678"
+ *                         name:
+ *                           type: string
+ *                           example: "John Doe Updated"
+ *                         email:
+ *                           type: string
+ *                           example: "john.doe@example.com"
  *       400:
- *         description: Invalid input
+ *         description: Validation error or bad request
+ *       500:
+ *         description: Internal server error
  */
 router.put("/profile/:id", verifyTokenAndUser, updateUser);
+
 
 /**
  * @swagger
