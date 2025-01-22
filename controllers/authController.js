@@ -41,7 +41,7 @@ export const registerUserWithOTP = async (req, res) => {
 };
 
 export const verifyOTPAndRegister = async (req, res) => {
-  const { mobileNumber, otp, name, email, password } = req.body;
+  const { mobileNumber, otp } = req.body;
 
   if (!mobileNumber || !otp) {
     return res
@@ -57,20 +57,17 @@ export const verifyOTPAndRegister = async (req, res) => {
   otpStore.delete(mobileNumber);
 
   try {
-    const existingUser = await User.findOne({ email: email });
+    const existingUser = await User.findOne({ mobileNumber: mobileNumber });
     if (existingUser) {
       return res.json(createResponse({
-        status: 500,
-        message: "User already registered."
+        message: "User already registered.",
+        result:{user:existingUser}
       }));
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      mobileNumber,
+      mobileNumber:mobileNumber,
+      verified: true
     });
 
     res
@@ -133,7 +130,6 @@ export const authenticateUser = async (req, res) => {
       );
     }
 
-    // Validate password
     const isMatch = bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.json(
@@ -182,7 +178,6 @@ export const updateUser = async (req, res) => {
     const { password, currentPassword, ...others } = req.body;
     const userId = req.params.id;
 
-    // Find the user by ID
     const user = await User.findById(userId);
 
     if (!user) {
@@ -196,7 +191,6 @@ export const updateUser = async (req, res) => {
 
     let newPassword = null;
 
-    // Handle password update only if the user provides a new password
     if (password) {
       if (!currentPassword) {
         return res.json(
@@ -208,7 +202,6 @@ export const updateUser = async (req, res) => {
         );
       }
 
-      // Verify the current password
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
         return res.json(
@@ -219,21 +212,19 @@ export const updateUser = async (req, res) => {
         );
       }
 
-      // Hash the new password
       const salt = await bcrypt.genSalt(10);
       newPassword = await bcrypt.hash(password, salt);
     }
 
-    // Update user details (conditionally include the new password if provided)
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
-          ...others, // Spread other fields to update
-          ...(newPassword && { password: newPassword }), // Only include password if it's updated
+          ...others,
+          ...(newPassword && { password: newPassword }),
         },
       },
-      { new: true } // Return the updated user document
+      { new: true }
     );
 
     res.json(

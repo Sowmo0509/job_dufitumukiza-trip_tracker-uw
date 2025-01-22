@@ -110,15 +110,6 @@ router.post("/register/otp", registerUserWithOTP);
  *               otp:
  *                 type: string
  *                 example: "123456"
- *               name:
- *                 type: string
- *                 example: "John Doe"
- *               email:
- *                 type: string
- *                 example: "john@example.com"
- *               password:
- *                 type: string
- *                 example: "password123"
  *     responses:
  *       201:
  *         description: User registered successfully
